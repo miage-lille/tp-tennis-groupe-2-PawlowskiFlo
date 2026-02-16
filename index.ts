@@ -60,7 +60,7 @@ export const scoreToString = (score: Score): string => {
 };
 
 export const scoreWhenDeuce = (winner: Player): Score => {
-  throw new Error('not implemented');
+  return advantage(winner);
 };
 
 export const scoreWhenAdvantage = (
