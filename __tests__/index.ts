@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
-import { otherPlayer, playerToString, scoreWhenDeuce, scoreWhenAdvantage, scoreWhenForty } from '..';
+import { otherPlayer, playerToString, scoreWhenDeuce, scoreWhenAdvantage, scoreWhenForty, scoreWhenPoint } from '..';
 import { stringToPlayer } from '../types/player';
-import { advantage, game, deuce, forty, FortyData, stringToPoint } from '../types/score';
+import { advantage, game, deuce, forty, FortyData, stringToPoint, love, fifteen, thirty, points, PointsData } from '../types/score';
 
 describe('Tests for tooling functions', () => {
   test('Given playerOne when playerToString', () => {
@@ -78,15 +78,32 @@ describe('Tests for transition functions', () => {
     })
   });
   // -------------------------TESTS POINTS-------------------------- //
-  // test('Given players at 0 or 15 points score kind is still POINTS', () => {
-  //   throw new Error(
-  //     'Your turn to code the preconditions, expected result and test.'
-  //   );
-  // });
+  test('Given players at 0 or 15 points score kind is still POINTS', () => {
+    // Test avec joueur 1 à Love, joueur 2 à Love, joueur 1 gagne
+    const pointsData1: PointsData = {
+      PLAYER_ONE: love(),
+      PLAYER_TWO: love()
+    };
+    const score1 = scoreWhenPoint(pointsData1, 'PLAYER_ONE');
+    expect(score1.kind).toBe('POINTS');
+    
+    // Test avec joueur 1 à 15, joueur 2 à Love, joueur 1 gagne  
+    const pointsData2: PointsData = {
+      PLAYER_ONE: fifteen(),
+      PLAYER_TWO: love()
+    };
+    const score2 = scoreWhenPoint(pointsData2, 'PLAYER_ONE');
+    expect(score2.kind).toBe('POINTS');
+  });
 
-  // test('Given one player at 30 and win, score kind is forty', () => {
-  //   throw new Error(
-  //     'Your turn to code the preconditions, expected result and test.'
-  //   );
-  // });
+  test('Given one player at 30 and win, score is forty', () => {
+    // Test joueur 1 à 30, joueur 2 à Love, joueur 1 gagne → forty
+    const pointsData: PointsData = {
+      PLAYER_ONE: thirty(),
+      PLAYER_TWO: love()
+    };
+    const score = scoreWhenPoint(pointsData, 'PLAYER_ONE');
+    const expectedScore = forty('PLAYER_ONE', love());
+    expect(score).toStrictEqual(expectedScore);
+  });
 });
