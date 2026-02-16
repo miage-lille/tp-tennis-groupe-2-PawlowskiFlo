@@ -71,11 +71,31 @@ export const scoreWhenAdvantage = (
   return deuce();
 };
 
+export const incrementPoint = (point: Point): Option.Option<Point> => {
+  switch (point) {
+    case 0:
+      return Option.some(15);
+    case 15:
+      return Option.some(30);
+    case 30:
+      return Option.none();
+    default:
+      throw new Error(`Invalid point: ${point}`);
+  }
+};
+
 export const scoreWhenForty = (
   currentForty: FortyData,
   winner: Player
 ): Score => {
-  throw new Error('not implemented');
+  if (isSamePlayer(currentForty.player, winner)) return game(winner);
+  return pipe(
+    incrementPoint(currentForty.otherPoint),
+    Option.match({
+      onNone: () => deuce(),
+      onSome: (p: Point) => forty(currentForty.player, p) as Score
+    })
+  );
 };
 
 
