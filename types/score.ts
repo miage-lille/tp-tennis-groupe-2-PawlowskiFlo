@@ -1,18 +1,41 @@
 import { Player } from './player';
 
-// Surely not the best choice
-export type Point = number;
+// Final attempt at point type
+export type Love = {
+  kind: 'LOVE';
+};
+
+export type Fifteen = {
+  kind: 'FIFTEEN';
+};
+
+export type Thirty = {
+  kind: 'THIRTY';
+};
+
+export type Point = Love | Fifteen | Thirty;
+
+// Point constructors
+export const love = (): Love => ({
+  kind: 'LOVE',
+});
+
+export const fifteen = (): Fifteen => ({
+  kind: 'FIFTEEN',
+});
+
+export const thirty = (): Thirty => ({
+  kind: 'THIRTY',
+});
 
 export const stringToPoint = (str: string): Point => {
   switch (str) {
     case 'LOVE':
-      return 0;
+      return love();
     case 'FIFTEEN':
-      return 15;
+      return fifteen();
     case 'THIRTY':
-      return 30;
-    case 'FORTY':
-      return 40;
+      return thirty();
     default:
       throw new Error(`Invalid point string: ${str}`);
   }

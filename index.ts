@@ -1,5 +1,5 @@
 import { Player, stringToPlayer, isSamePlayer } from './types/player';
-import { Point, PointsData, Score, FortyData, points, deuce, forty, advantage, game } from './types/score';
+import { Point, PointsData, Score, FortyData, points, deuce, forty, advantage, game, love, fifteen, thirty } from './types/score';
 import { pipe, Option } from 'effect'
 
 // -------- Tooling functions --------- //
@@ -22,15 +22,13 @@ export const otherPlayer = (player: Player) => {
 };
 // Exercice 1 :
 export const pointToString = (point: Point): string => {
-  switch (point) {
-    case 0:
+  switch (point.kind) {
+    case 'LOVE':
       return 'Love';
-    case 15:
+    case 'FIFTEEN':
       return '15';
-    case 30:
+    case 'THIRTY':
       return '30';
-    case 40:
-      return '40';
     default:
       throw new Error(`Invalid point: ${point}`);
   }
@@ -72,15 +70,13 @@ export const scoreWhenAdvantage = (
 };
 
 export const incrementPoint = (point: Point): Option.Option<Point> => {
-  switch (point) {
-    case 0:
-      return Option.some(15);
-    case 15:
-      return Option.some(30);
-    case 30:
+  switch (point.kind) {
+    case 'LOVE':
+      return Option.some(fifteen());
+    case 'FIFTEEN':
+      return Option.some(thirty());
+    case 'THIRTY':
       return Option.none();
-    default:
-      throw new Error(`Invalid point: ${point}`);
   }
 };
 
@@ -93,7 +89,7 @@ export const scoreWhenForty = (
     incrementPoint(currentForty.otherPoint),
     Option.match({
       onNone: () => deuce(),
-      onSome: (p: Point) => forty(currentForty.player, p) as Score
+      onSome: p => forty(currentForty.player, p) as Score
     })
   );
 };
