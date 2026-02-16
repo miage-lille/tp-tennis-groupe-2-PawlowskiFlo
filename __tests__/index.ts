@@ -1,5 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
-import { otherPlayer, playerToString } from '..';
+import { otherPlayer, playerToString, scoreWhenDeuce, scoreWhenAdvantage, scoreWhenForty, scoreWhenPoint, score, newGame } from '..';
+import { stringToPlayer } from '../types/player';
+import { advantage, game, deuce, forty, FortyData, stringToPoint, love, fifteen, thirty, points, PointsData } from '../types/score';
 
 describe('Tests for tooling functions', () => {
   test('Given playerOne when playerToString', () => {
@@ -12,34 +14,125 @@ describe('Tests for tooling functions', () => {
 });
 
 describe('Tests for transition functions', () => {
-  // test('Given deuce, score is advantage to winner', () => {
-  //   console.log('To fill when we will know how represent Deuce');
-  // });
-  // test('Given advantage when advantagedPlayer wins, score is Game avantagedPlayer', () => {
-  //   console.log('To fill when we will know how represent Advantage');
-  // });
-  // test('Given advantage when otherPlayer wins, score is Deuce', () => {
-  //   console.log('To fill when we will know how represent Advantage');
-  // });
-  // test('Given a player at 40 when the same player wins, score is Game for this player', () => {
-  //   console.log('To fill when we will know how represent Forty');
-  // });
-  // test('Given player at 40 and other at 30 when other wins, score is Deuce', () => {
-  //   console.log('To fill when we will know how represent Forty');
-  // });
-  // test('Given player at 40 and other at 15 when other wins, score is 40 - 15', () => {
-  //   console.log('To fill when we will know how represent Forty');
-  // });
+  test('Given deuce, score is advantage to winner', () => {
+    ['PLAYER_ONE', 'PLAYER_TWO'].forEach((w) => {
+      const score = scoreWhenDeuce(stringToPlayer(w));
+      const scoreExpected = advantage(stringToPlayer(w));
+      expect(score).toStrictEqual(scoreExpected);
+    })
+  });
+  
+  test('Given advantage when advantagedPlayer wins, score is Game advantagedPlayer', () => {
+    ['PLAYER_ONE', 'PLAYER_TWO'].forEach((advantaged) => {
+      const advantagedPlayer = stringToPlayer(advantaged);
+      const winner = advantagedPlayer;
+      const score = scoreWhenAdvantage(advantagedPlayer, winner);
+      const scoreExpected = game(winner);
+      expect(score).toStrictEqual(scoreExpected);
+    })
+  });
+  
+  test('Given advantage when otherPlayer wins, score is Deuce', () => {
+    ['PLAYER_ONE', 'PLAYER_TWO'].forEach((advantaged) => {
+      const advantagedPlayer = stringToPlayer(advantaged);
+      const winner = otherPlayer(advantagedPlayer);
+      const score = scoreWhenAdvantage(advantagedPlayer, winner);
+      const scoreExpected = deuce();
+      expect(score).toStrictEqual(scoreExpected);
+    })
+  });
+  
+  test('Given a player at 40 when the same player wins, score is Game for this player', () => {
+    ['PLAYER_ONE', 'PLAYER_TWO'].forEach((winner) => {
+      const fortyData = {
+        player: stringToPlayer(winner),
+        otherPoint: stringToPoint('THIRTY'),
+      };
+      const score = scoreWhenForty(fortyData, stringToPlayer(winner));
+      const scoreExpected = game(stringToPlayer(winner));
+      expect(score).toStrictEqual(scoreExpected);
+    })
+  });
+  
+  test('Given player at 40 and other at 30 when other wins, score is Deuce', () => {
+    ['PLAYER_ONE', 'PLAYER_TWO'].forEach((winner) => {
+      const fortyData = {
+        player: otherPlayer(stringToPlayer(winner)),
+        otherPoint: stringToPoint('THIRTY'),
+      };
+      const score = scoreWhenForty(fortyData, stringToPlayer(winner));
+      const scoreExpected = deuce();
+      expect(score).toStrictEqual(scoreExpected);
+    })
+  });
+  
+  test('Given player at 40 and other at 15 when other wins, score is 40 - 30', () => {
+    ['PLAYER_ONE', 'PLAYER_TWO'].forEach((winner) => {
+      const fortyData = {
+        player: otherPlayer(stringToPlayer(winner)),
+        otherPoint: stringToPoint('FIFTEEN'),
+      };
+      const score = scoreWhenForty(fortyData, stringToPlayer(winner));
+      const scoreExpected = forty(fortyData.player, stringToPoint('THIRTY'));
+      expect(score).toStrictEqual(scoreExpected);
+    })
+  });
   // -------------------------TESTS POINTS-------------------------- //
-  // test('Given players at 0 or 15 points score kind is still POINTS', () => {
-  //   throw new Error(
-  //     'Your turn to code the preconditions, expected result and test.'
-  //   );
-  // });
+  test('Given players at 0 or 15 points score kind is still POINTS', () => {
+    // Test avec joueur 1 à Love, joueur 2 à Love, joueur 1 gagne
+    const pointsData1: PointsData = {
+      PLAYER_ONE: love(),
+      PLAYER_TWO: love()
+    };
+    const score1 = scoreWhenPoint(pointsData1, 'PLAYER_ONE');
+    expect(score1.kind).toBe('POINTS');
+    
+    // Test avec joueur 1 à 15, joueur 2 à Love, joueur 1 gagne  
+    const pointsData2: PointsData = {
+      PLAYER_ONE: fifteen(),
+      PLAYER_TWO: love()
+    };
+    const score2 = scoreWhenPoint(pointsData2, 'PLAYER_ONE');
+    expect(score2.kind).toBe('POINTS');
+  });
 
-  // test('Given one player at 30 and win, score kind is forty', () => {
-  //   throw new Error(
-  //     'Your turn to code the preconditions, expected result and test.'
-  //   );
-  // });
+  test('Given one player at 30 and win, score is forty', () => {
+    // Test joueur 1 à 30, joueur 2 à Love, joueur 1 gagne → forty
+    const pointsData: PointsData = {
+      PLAYER_ONE: thirty(),
+      PLAYER_TWO: love()
+    };
+    const score = scoreWhenPoint(pointsData, 'PLAYER_ONE');
+    const expectedScore = forty('PLAYER_ONE', love());
+    expect(score).toStrictEqual(expectedScore);
+  });
+  
+  // -------------------------TESTS GÉNÉRAL SCORE FUNCTION-------------------------- //
+  test('Given score POINTS when player wins, calls scoreWhenPoint', () => {
+    const pointsScore = points(love(), love());
+    const result = score(pointsScore, 'PLAYER_ONE');
+    // Should increment PLAYER_ONE from love to fifteen
+    const expected = points(fifteen(), love());
+    expect(result).toStrictEqual(expected);
+  });
+  
+  test('Given score DEUCE when player wins, calls scoreWhenDeuce', () => {
+    const deuceScore = deuce();
+    const result = score(deuceScore, 'PLAYER_ONE');
+    const expected = advantage('PLAYER_ONE');
+    expect(result).toStrictEqual(expected);
+  });
+  
+  test('Given score GAME when function called, game state unchanged', () => {
+    const gameScore = game('PLAYER_ONE');
+    const result = score(gameScore, 'PLAYER_TWO');
+    // Game should remain the same (winner doesn't change)
+    const expected = game('PLAYER_ONE');  
+    expect(result).toStrictEqual(expected);
+  });
+  
+  test('New game starts at love-love', () => {
+    const expected = points(love(), love());
+    expect(newGame).toStrictEqual(expected);
+  });
 });
