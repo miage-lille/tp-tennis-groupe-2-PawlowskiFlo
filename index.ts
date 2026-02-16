@@ -1,4 +1,4 @@
-import { Player, stringToPlayer } from './types/player';
+import { Player, stringToPlayer, isSamePlayer } from './types/player';
 import { Point, PointsData, Score, FortyData, points, deuce, forty, advantage, game } from './types/score';
 import { pipe, Option } from 'effect'
 
@@ -67,7 +67,8 @@ export const scoreWhenAdvantage = (
   advantagedPlayed: Player,
   winner: Player
 ): Score => {
-  throw new Error('not implemented');
+  if (isSamePlayer(advantagedPlayed, winner)) return game(winner);
+  return deuce();
 };
 
 export const scoreWhenForty = (
