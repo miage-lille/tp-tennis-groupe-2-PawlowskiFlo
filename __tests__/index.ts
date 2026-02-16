@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
-import { otherPlayer, playerToString, scoreWhenDeuce } from '..';
+import { otherPlayer, playerToString, scoreWhenDeuce, scoreWhenAdvantage } from '..';
 import { stringToPlayer } from '../types/player';
-import { advantage } from '../types/score';
+import { advantage, game, deuce } from '../types/score';
 
 describe('Tests for tooling functions', () => {
   test('Given playerOne when playerToString', () => {
@@ -18,6 +18,26 @@ describe('Tests for transition functions', () => {
     ['PLAYER_ONE', 'PLAYER_TWO'].forEach((w) => {
       const score = scoreWhenDeuce(stringToPlayer(w));
       const scoreExpected = advantage(stringToPlayer(w));
+      expect(score).toStrictEqual(scoreExpected);
+    })
+  });
+  
+  test('Given advantage when advantagedPlayer wins, score is Game advantagedPlayer', () => {
+    ['PLAYER_ONE', 'PLAYER_TWO'].forEach((advantaged) => {
+      const advantagedPlayer = stringToPlayer(advantaged);
+      const winner = advantagedPlayer;
+      const score = scoreWhenAdvantage(advantagedPlayer, winner);
+      const scoreExpected = game(winner);
+      expect(score).toStrictEqual(scoreExpected);
+    })
+  });
+  
+  test('Given advantage when otherPlayer wins, score is Deuce', () => {
+    ['PLAYER_ONE', 'PLAYER_TWO'].forEach((advantaged) => {
+      const advantagedPlayer = stringToPlayer(advantaged);
+      const winner = otherPlayer(advantagedPlayer);
+      const score = scoreWhenAdvantage(advantagedPlayer, winner);
+      const scoreExpected = deuce();
       expect(score).toStrictEqual(scoreExpected);
     })
   });
