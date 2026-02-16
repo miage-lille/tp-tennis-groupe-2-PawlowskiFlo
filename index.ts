@@ -1,5 +1,5 @@
 import { Player, stringToPlayer } from './types/player';
-import { Point, PointsData, Score } from './types/score';
+import { Point, PointsData, Score, FortyData, points, deuce, forty, advantage, game } from './types/score';
 import { pipe, Option } from 'effect'
 
 // -------- Tooling functions --------- //
@@ -39,7 +39,7 @@ export const scoreWhenAdvantage = (
 };
 
 export const scoreWhenForty = (
-  currentForty: unknown, // TO UPDATE WHEN WE KNOW HOW TO REPRESENT FORTY
+  currentForty: FortyData,
   winner: Player
 ): Score => {
   throw new Error('not implemented');
