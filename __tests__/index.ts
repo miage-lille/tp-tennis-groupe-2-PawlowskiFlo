@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { otherPlayer, playerToString, scoreWhenDeuce, scoreWhenAdvantage, scoreWhenForty, scoreWhenPoint } from '..';
+import { otherPlayer, playerToString, scoreWhenDeuce, scoreWhenAdvantage, scoreWhenForty, scoreWhenPoint, score, newGame } from '..';
 import { stringToPlayer } from '../types/player';
 import { advantage, game, deuce, forty, FortyData, stringToPoint, love, fifteen, thirty, points, PointsData } from '../types/score';
 
@@ -105,5 +105,34 @@ describe('Tests for transition functions', () => {
     const score = scoreWhenPoint(pointsData, 'PLAYER_ONE');
     const expectedScore = forty('PLAYER_ONE', love());
     expect(score).toStrictEqual(expectedScore);
+  });
+  
+  // -------------------------TESTS GÉNÉRAL SCORE FUNCTION-------------------------- //
+  test('Given score POINTS when player wins, calls scoreWhenPoint', () => {
+    const pointsScore = points(love(), love());
+    const result = score(pointsScore, 'PLAYER_ONE');
+    // Should increment PLAYER_ONE from love to fifteen
+    const expected = points(fifteen(), love());
+    expect(result).toStrictEqual(expected);
+  });
+  
+  test('Given score DEUCE when player wins, calls scoreWhenDeuce', () => {
+    const deuceScore = deuce();
+    const result = score(deuceScore, 'PLAYER_ONE');
+    const expected = advantage('PLAYER_ONE');
+    expect(result).toStrictEqual(expected);
+  });
+  
+  test('Given score GAME when function called, game state unchanged', () => {
+    const gameScore = game('PLAYER_ONE');
+    const result = score(gameScore, 'PLAYER_TWO');
+    // Game should remain the same (winner doesn't change)
+    const expected = game('PLAYER_ONE');  
+    expect(result).toStrictEqual(expected);
+  });
+  
+  test('New game starts at love-love', () => {
+    const expected = points(love(), love());
+    expect(newGame).toStrictEqual(expected);
   });
 });
