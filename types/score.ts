@@ -3,6 +3,21 @@ import { Player } from './player';
 // Surely not the best choice
 export type Point = number;
 
+export const stringToPoint = (str: string): Point => {
+  switch (str) {
+    case 'LOVE':
+      return 0;
+    case 'FIFTEEN':
+      return 15;
+    case 'THIRTY':
+      return 30;
+    case 'FORTY':
+      return 40;
+    default:
+      throw new Error(`Invalid point string: ${str}`);
+  }
+};
+
 export type PointsData = {
   PLAYER_ONE: Point;
   PLAYER_TWO: Point;
